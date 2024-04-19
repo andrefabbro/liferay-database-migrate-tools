@@ -36,7 +36,7 @@ public class Main {
     }
 
     private static final String _SOURCE_FILE_NAME = "liferay-mysql-dump.sql";
-    private static final String _TARGET_FILE_NAME = "biz-link-mysql-dump.sql";
-    private static final String _NEW_FILE_NAME = "biz-link-mysql-dump-out-put.sql";
+    private static final String _TARGET_FILE_NAME = "customer-mysql-dump.sql";
+    private static final String _NEW_FILE_NAME = "customer-mysql-dump-out-put.sql";
 
 }
