@@ -1,7 +1,7 @@
 package com.liferay.convert.tools;
 
 import com.liferay.convert.tools.migrate.ReplacementLiferayScheme;
-import com.liferay.convert.tools.util.PrintUtil;
+import com.liferay.convert.tools.util.PrintLoggerUtil;
 
 
 /**
@@ -11,9 +11,9 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println("============================================================");
-        System.out.println("=================== STARTING APPLICATION ===================");
-        System.out.println("============================================================");
+        System.out.println("=============================================================");
+        System.out.println("===================== START APPLICATION =====================");
+        System.out.println("=============================================================");
         System.out.println("\nConverting database types between Oracle and MySQL tools ..");
 
         ReplacementLiferayScheme replacementLiferayScheme = new ReplacementLiferayScheme();
@@ -22,12 +22,11 @@ public class Main {
                 _SOURCE_FILE_NAME, _TARGET_FILE_NAME, _NEW_FILE_NAME);
 
         if (replace) {
-            PrintUtil.print(PrintUtil.GREEN,
+            PrintLoggerUtil.printInfo(
                     "Dump file was replacement with success.");
         }
         else {
-            PrintUtil.print(PrintUtil.RED,
-                    "Replace fail. Try again!");
+            PrintLoggerUtil.printInfo("Replace fail. Try again!");
         }
 
         System.out.println("=============================================================");

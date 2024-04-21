@@ -1,6 +1,8 @@
 package com.liferay.convert.tools.migrate;
 
-import com.liferay.convert.tools.util.PrintUtil;
+import com.liferay.convert.tools.exception.ReplacementException;
+import com.liferay.convert.tools.exception.SQLFilesException;
+import com.liferay.convert.tools.util.PrintLoggerUtil;
 
 import java.io.*;
 import java.util.*;
@@ -21,13 +23,15 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
         try {
             List<Map<String, String>> contentMapList =
-                    _getInputStreamFileList(sourceFileName, targetFileName);
+                    _getInputStreamListByFileName(sourceFileName, targetFileName);
 
             if (contentMapList != null && contentMapList.size() == 2) {
+
                 String sourceContent = contentMapList.get(0).get("source.key");
                 String targetContent = contentMapList.get(1).get("target.key");
 
                 if (sourceContent != null && targetContent != null) {
+
                     Pattern[] patternsArray = new Pattern[] {
                             _DROP_TABLE_PATTERN,
                             _CREATE_TABLE_PATTERN,
@@ -35,15 +39,23 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                     };
 
                     for (Pattern pattern : patternsArray) {
-                        targetContent = _replaceContextPattern(
+                        targetContent = replaceContextPattern(
                                 sourceContent, targetContent, pattern);
                     }
 
-                     _createSQLFileOutput(newFileName, targetContent);
+                      _createSQLFileOutput(newFileName, targetContent);
 
-                    // Set true if wasn't detected errors during the creating file
+                    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-                    replaced = true;
+                    if (classLoader.getResourceAsStream(newFileName) != null) {
+                        // If exists the file with the new name replaced variable is true
+
+                        replaced = true;
+                    }
+                }
+                else {
+                    throw new ReplacementException(
+                            "Source or Target files produced null pointer.");
                 }
             }
             else {
@@ -79,21 +91,20 @@ public class ReplacementLiferayScheme extends BaseReplacement {
         try (FileWriter writer = new FileWriter(file)) {
             try {
                 if (file.exists()) {
-                    PrintUtil.print(
-                            PrintUtil.LIGHT_BLUE, "the " + file.getName() +
-                                    " was create with success.");
+                    writer.write(content);
+
+                    PrintLoggerUtil.printInfo("The " + file.getName() +
+                            " was create with success.");
                 }
                 else {
-                    throw new Exception(
+                    throw new IOException(
                             "File with the name " + newFileName +
                                     " already exists.");
                 }
-
-                writer.write(content);
             }
             catch (Exception exception) {
                 throw new IOException(
-                        "Duplicated file name " + newFileName, exception);
+                        "Unable to create SQL output file " + exception.getCause());
             }
             finally {
                 writer.flush();
@@ -121,8 +132,8 @@ public class ReplacementLiferayScheme extends BaseReplacement {
         }
     }
 
-    private List<Map<String, String>> _getInputStreamFileList(
-            String sourceFileName, String targetFileName) throws Exception {
+    private List<Map<String, String>> _getInputStreamListByFileName(
+            String sourceFileName, String targetFileName) throws SQLFilesException {
 
         try {
             if (!sourceFileName.endsWith(".sql") && targetFileName.endsWith(".sql")) {
@@ -138,12 +149,12 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                     classLoader.getResourceAsStream(targetFileName);
 
             if (sourceInputStream == null) {
-                throw new Exception(
+                throw new SQLFilesException(
                         "Source file with the name " + sourceFileName +
                                 " not found.");
             }
             else if (targetInputStream == null) {
-                throw new Exception(
+                throw new SQLFilesException(
                         "Target file with the name " + targetFileName +
                                 " not found.");
             }
@@ -154,9 +165,9 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                 if (source.isEmpty() && target.isEmpty() ||
                         source.isBlank() && target.isBlank()) {
 
-                    PrintUtil.print(
-                            PrintUtil.RED, "Cannot convert input stream to string!" +
-                                    " Invalid input file.");
+                    PrintLoggerUtil.printError(
+                            "Cannot convert input stream to string!" +
+                                    " Invalid input file.", null);
 
                     return null;
                 }
@@ -170,13 +181,13 @@ public class ReplacementLiferayScheme extends BaseReplacement {
             }
         }
         catch (Exception exception) {
-            throw new Exception("Unable to load files ", exception);
+            throw new SQLFilesException("Unable to load files ", exception);
         }
     }
 
-    private String _replaceContextPattern(
+    protected String replaceContextPattern(
             String sourceContent, String targetContent, Pattern pattern)
-        throws Exception {
+        throws ReplacementException {
 
         try {
             if (Objects.equals(pattern, _INSERT_INTO_PATTERN)) {
@@ -194,7 +205,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                             targetContent = targetContent.replace(matcherTarget.group(1),
                                     matcherSource.group(1));
 
-                            _print(matcherTarget.group(1),
+                            PrintLoggerUtil.printReplacement(matcherTarget.group(1),
                                     matcherSource.group(1), pattern);
                         }
                     }
@@ -216,7 +227,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                             targetContent = targetContent.replace(
                                     matcherTarget.group(), matcherSource.group());
 
-                            _print(matcherTarget.group(),
+                            PrintLoggerUtil.printReplacement(matcherTarget.group(),
                                     matcherSource.group(), pattern);
                         }
                     }
@@ -226,22 +237,11 @@ public class ReplacementLiferayScheme extends BaseReplacement {
             return targetContent;
         }
         catch (Exception exception) {
-            throw new Exception(
-                    "Unable to find pattern " + pattern.pattern(),
-                        exception);
+            throw new ReplacementException(
+                    "Unable to process " + pattern.pattern(),
+                            exception);
         }
 
-    }
-
-    private void _print(String oldContent, String newContent, Pattern pattern) {
-        System.out.println(
-                "Apply the pattern " + pattern.pattern() +
-                        "\n\n");
-
-        System.out.println(
-                "Replaced " + PrintUtil.LIGHT_BLUE + oldContent +
-                        PrintUtil.RESET + " by " + PrintUtil.GREEN + newContent +
-                                PrintUtil.RESET + "\n\n");
     }
 
     // Utilities variables
