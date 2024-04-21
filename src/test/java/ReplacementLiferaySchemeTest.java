@@ -1,5 +1,5 @@
 import com.liferay.convert.tools.migrate.ReplacementLiferayScheme;
-import com.liferay.convert.tools.util.PrintUtil;
+import com.liferay.convert.tools.util.PrintLoggerUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -18,8 +18,8 @@ public class ReplacementLiferaySchemeTest {
 
     @BeforeAll
     public static void loadTemplates() {
-       PrintUtil.print(
-               PrintUtil.LIGHT_BLUE, "Initializing tests to " +
+       PrintLoggerUtil.printInfo(
+              "Initializing tests to " +
                        ReplacementLiferayScheme.class.getName());
     }
 
