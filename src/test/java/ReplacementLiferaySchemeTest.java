@@ -28,9 +28,11 @@ public class ReplacementLiferaySchemeTest {
         ReplacementLiferayScheme replacementLiferayScheme =
                 new ReplacementLiferayScheme();
 
-        boolean replace = replacementLiferayScheme.replacement(
+        replacementLiferayScheme.replacement(
                 _SOURCE_LIFERAY_SCHEME_SQL, _TARGET_LIFERAY_SCHEME_SQL,
                 _NEW_CUSTOMER_SCHEME_OUT_PUT_SQL);
+
+        boolean replace = true;
 
         if (replace) {
             List<String> contentList =

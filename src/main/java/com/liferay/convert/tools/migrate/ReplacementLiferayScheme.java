@@ -3,6 +3,7 @@ package com.liferay.convert.tools.migrate;
 import com.liferay.convert.tools.exception.ReplacementException;
 import com.liferay.convert.tools.exception.SQLFilesException;
 import com.liferay.convert.tools.util.PrintLoggerUtil;
+import com.liferay.convert.tools.util.ResultsThreadLocal;
 
 import java.io.*;
 import java.util.*;
@@ -15,11 +16,9 @@ import java.util.regex.Pattern;
 public class ReplacementLiferayScheme extends BaseReplacement {
 
     @Override
-    public boolean replacement(
+    public void replacement(
             String sourceFileName, String targetFileName, String newFileName)
         throws Exception {
-
-        boolean replaced = false;
 
         try {
             List<Map<String, String>> contentMapList =
@@ -43,15 +42,9 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                                 sourceContent, targetContent, pattern);
                     }
 
-                      _createSQLFileOutput(newFileName, targetContent);
+                    // Method to create output file and add on thread to be get in another class.
 
-                    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-                    if (classLoader.getResourceAsStream(newFileName) != null) {
-                        // If exists the file with the new name replaced variable is true
-
-                        replaced = true;
-                    }
+                    _createSQLFileOutput(newFileName, targetContent);
                 }
                 else {
                     throw new ReplacementException(
@@ -66,8 +59,6 @@ public class ReplacementLiferayScheme extends BaseReplacement {
             throw new Exception(
                     "Unable to replace contents ", exception);
         }
-
-        return replaced;
     }
 
     private Map<String, String> _buildMapItem(String key, String value) {
@@ -93,10 +84,14 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                 if (file.exists()) {
                     writer.write(content);
 
+                    ResultsThreadLocal.setResultsThreadLocal(true);
+
                     PrintLoggerUtil.printInfo("The " + file.getName() +
                             " was create with success.");
                 }
                 else {
+                    ResultsThreadLocal.setResultsThreadLocal(false);
+
                     throw new IOException(
                             "File with the name " + newFileName +
                                     " already exists.");
@@ -140,7 +135,9 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                 throw new Exception("Extension file must be .sql");
             }
 
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            Thread thread = Thread.currentThread();
+
+            ClassLoader classLoader = thread.getContextClassLoader();
 
             InputStream sourceInputStream =
                     classLoader.getResourceAsStream(sourceFileName);

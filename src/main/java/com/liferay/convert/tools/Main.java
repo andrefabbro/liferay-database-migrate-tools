@@ -2,6 +2,7 @@ package com.liferay.convert.tools;
 
 import com.liferay.convert.tools.migrate.ReplacementLiferayScheme;
 import com.liferay.convert.tools.util.PrintLoggerUtil;
+import com.liferay.convert.tools.util.ResultsThreadLocal;
 
 
 /**
@@ -14,16 +15,18 @@ public class Main {
         System.out.println("=============================================================");
         System.out.println("===================== START APPLICATION =====================");
         System.out.println("=============================================================");
-        System.out.println("\nConverting database types between Oracle and MySQL tools ..");
+        System.out.println("\n\n");
+        System.out.println("Converting database types between Oracle and MySQL tools ...");
 
         ReplacementLiferayScheme replacementLiferayScheme = new ReplacementLiferayScheme();
 
-        boolean replace = replacementLiferayScheme.replacement(
+        replacementLiferayScheme.replacement(
                 _SOURCE_FILE_NAME, _TARGET_FILE_NAME, _NEW_FILE_NAME);
 
-        if (replace) {
+        if (ResultsThreadLocal.getResultsThreadLocal()) {
             PrintLoggerUtil.printInfo(
-                    "Dump file was replacement with success.");
+                    "Replaced between " + _SOURCE_FILE_NAME + " and " +
+                            _TARGET_FILE_NAME + " to finished successfully.") ;
         }
         else {
             PrintLoggerUtil.printInfo("Replace fail. Try again!");
@@ -32,10 +35,15 @@ public class Main {
         System.out.println("=============================================================");
         System.out.println("====================== END APPLICATION ======================");
         System.out.println("=============================================================");
+
     }
 
+    // Necessary variables to initialize the app
+
     private static final String _SOURCE_FILE_NAME = "liferay-mysql-dump.sql";
+
     private static final String _TARGET_FILE_NAME = "customer-mysql-dump.sql";
+
     private static final String _NEW_FILE_NAME = "customer-mysql-dump-out-put.sql";
 
 }
