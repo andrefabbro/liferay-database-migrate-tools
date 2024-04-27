@@ -32,9 +32,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                 if (sourceContent != null && targetContent != null) {
 
                     Pattern[] patternsArray = new Pattern[] {
-                            _DROP_TABLE_PATTERN,
-                            _CREATE_TABLE_PATTERN,
-                            _INSERT_INTO_PATTERN
+                            _DROP_TABLE_PATTERN, _CREATE_TABLE_PATTERN, _INSERT_INTO_PATTERN
                     };
 
                     for (Pattern pattern : patternsArray) {
@@ -59,6 +57,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
             throw new Exception(
                     "Unable to replace contents ", exception);
         }
+
     }
 
     private Map<String, String> _buildMapItem(String key, String value) {
@@ -90,8 +89,6 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                             " was create with success.");
                 }
                 else {
-                    ResultsThreadLocal.setResultsThreadLocal(false);
-
                     throw new IOException(
                             "File with the name " + newFileName +
                                     " already exists.");
@@ -110,6 +107,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
         catch (IOException ioException) {
             throw new IOException(ioException);
         }
+
     }
 
     private String _getContentByInputStream(InputStream inputStream) throws IOException {
@@ -132,7 +130,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
         try {
             if (!sourceFileName.endsWith(".sql") && targetFileName.endsWith(".sql")) {
-                throw new Exception("Extension file must be .sql");
+                throw new SQLFilesException("Extension file must be .sql");
             }
 
             Thread thread = Thread.currentThread();
@@ -209,6 +207,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                 }
 
                 return targetContent;
+
             }
             else {
                 Matcher matcherSource = pattern.matcher(sourceContent);
@@ -232,6 +231,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
             }
 
             return targetContent;
+
         }
         catch (Exception exception) {
             throw new ReplacementException(
@@ -250,8 +250,10 @@ public class ReplacementLiferayScheme extends BaseReplacement {
     private static final Pattern _CREATE_TABLE_PATTERN = Pattern.compile(
             "CREATE\\s+TABLE\\s+(`[^`]+`)\\s*\\((?:[^)(]+|\\([^)(]*\\))*\\)\\s*" +
                     "ENGINE=InnoDB\\s*DEFAULT\\s*CHARSET=utf8mb4\\s*COLLATE=utf8mb4_unicode_ci;");
+
     private static final Pattern _DROP_TABLE_PATTERN = Pattern.compile(
             "DROP\\s+TABLE\\s+IF\\s+EXISTS\\s+(`[^`]+`);");
+
     private static final Pattern _INSERT_INTO_PATTERN = Pattern.compile(
             "INSERT\\s+INTO\\s+(`[^`]+`)\\s+VALUES\\s+\\(");
 

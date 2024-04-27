@@ -12,11 +12,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println("=============================================================");
-        System.out.println("===================== START APPLICATION =====================");
-        System.out.println("=============================================================");
-        System.out.println("\n\n");
-        System.out.println("Converting database types between Oracle and MySQL tools ...");
+        System.out.println("Converting database types between Oracle and MySQL tools...");
 
         ReplacementLiferayScheme replacementLiferayScheme = new ReplacementLiferayScheme();
 
@@ -25,16 +21,13 @@ public class Main {
 
         if (ResultsThreadLocal.getResultsThreadLocal()) {
             PrintLoggerUtil.printInfo(
-                    "Replaced between " + _SOURCE_FILE_NAME + " and " +
-                            _TARGET_FILE_NAME + " to finished successfully.") ;
+                    "Replace between " + _SOURCE_FILE_NAME + " and " +
+                            _TARGET_FILE_NAME + " to finished successfully.");
         }
         else {
-            PrintLoggerUtil.printInfo("Replace fail. Try again!");
+            PrintLoggerUtil.printError(
+                    "Replace fail. Try again!", null);
         }
-
-        System.out.println("=============================================================");
-        System.out.println("====================== END APPLICATION ======================");
-        System.out.println("=============================================================");
 
     }
 
