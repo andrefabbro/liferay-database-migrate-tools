@@ -32,7 +32,10 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                 if (sourceContent != null && targetContent != null) {
 
                     Pattern[] patternsArray = new Pattern[] {
-                            _DROP_TABLE_PATTERN, _CREATE_TABLE_PATTERN, _INSERT_INTO_PATTERN
+                            _ALTER_TABLE_DISABLE_PATTER_AS_COMMENT,
+                            _ALTER_TABLE_ENABLE_PATTER_AS_COMMENT,
+                            _DROP_TABLE_PATTERN, _CREATE_TABLE_PATTERN,
+                            _LOCK_TABLES_PATTERN, _INSERT_INTO_PATTERN
                     };
 
                     for (Pattern pattern : patternsArray) {
@@ -96,7 +99,8 @@ public class ReplacementLiferayScheme extends BaseReplacement {
             }
             catch (Exception exception) {
                 throw new IOException(
-                        "Unable to create SQL output file " + exception.getCause());
+                        "Unable to create SQL output file " +
+                                exception.getCause());
             }
             finally {
                 writer.flush();
@@ -178,6 +182,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
         catch (Exception exception) {
             throw new SQLFilesException("Unable to load files ", exception);
         }
+
     }
 
     protected String replaceContextPattern(
@@ -228,6 +233,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                         }
                     }
                 }
+
             }
 
             return targetContent;
@@ -240,12 +246,14 @@ public class ReplacementLiferayScheme extends BaseReplacement {
         }
 
     }
-
-    // Utilities variables
-
-    private static final String _RESOURCE_DIRECTORY = "/src/main/resources/";
-
+    
     // Patterns variables
+
+    private static final Pattern _ALTER_TABLE_DISABLE_PATTER_AS_COMMENT = Pattern.compile(
+            "/*!\\w+\\s+ALTER\\s+TABLE\\s+(`[^`]+`)\\s+DISABLE\\s+KEYS\\s+\\*/\\s*?;");
+
+    private static final Pattern _ALTER_TABLE_ENABLE_PATTER_AS_COMMENT = Pattern.compile(
+            "/*!\\w+\\s+ALTER\\s+TABLE\\s+(`[^`]+`)\\s+ENABLE\\s+KEYS\\s+\\*/\\s*?;");
 
     private static final Pattern _CREATE_TABLE_PATTERN = Pattern.compile(
             "CREATE\\s+TABLE\\s+(`[^`]+`)\\s*\\((?:[^)(]+|\\([^)(]*\\))*\\)\\s*" +
@@ -254,7 +262,29 @@ public class ReplacementLiferayScheme extends BaseReplacement {
     private static final Pattern _DROP_TABLE_PATTERN = Pattern.compile(
             "DROP\\s+TABLE\\s+IF\\s+EXISTS\\s+(`[^`]+`);");
 
+    private static final Pattern _LOCK_TABLES_PATTERN = Pattern.compile(
+            "LOCK\\s+TABLES\\s+(`[^`]+`)\\s+WRITE;");
+
     private static final Pattern _INSERT_INTO_PATTERN = Pattern.compile(
             "INSERT\\s+INTO\\s+(`[^`]+`)\\s+VALUES\\s+\\(");
+
+    // Concat with group id patterns variables
+
+    private static final Pattern _ALTER_TABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN = Pattern.compile(
+            "/*!\\w+\\s+ALTER\\s+TABLE\\s+[A-Za-z]+_[a-zA-Z]+_([0-9]+)\\s+DISABLE\\s+KEYS\\s+\\*/\\s*?;");
+
+    private static final Pattern _CREATE_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
+            "CREATE\\s+TABLE\\s+`[A-Za-z]+_[a-zA-Z]+_([0-9]+)`\\s*\\((?:[^)(]+|\\([^)(]*\\))*\\)\\s*" +
+                    "ENGINE=InnoDB\\s*DEFAULT\\s*CHARSET=utf8mb4\\s*COLLATE=utf8mb4_unicode_ci;");
+
+    private static final Pattern _DROP_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
+            "DROP\\s+TABLE\\s+IF\\s+EXISTS\\s+`([A-Za-z])+_[a-zA-Z]+_[0-9]+`");
+
+    private static final Pattern _LOCK_TABLES_GROUP_ID_FIELD_PATTERN = Pattern.compile(
+            "LOCK\\s+TABLES\\s+`[A-Za-z]+_[a-zA-Z]+_([0-9]+)`\\s+WRITE;");
+
+    // Utilities variables
+
+    private static final String _RESOURCE_DIRECTORY = "/src/main/resources/";
 
 }
