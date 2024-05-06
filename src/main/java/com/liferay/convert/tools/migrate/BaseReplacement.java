@@ -9,4 +9,31 @@ public abstract class BaseReplacement {
             String sourceFileName, String targetFileName, String newFileName)
         throws Exception;
 
+    protected String getType() {
+        return _type;
+    }
+
+    protected String type(String type) throws Exception {
+        if (type == null || type.isEmpty()) {
+            _setType(_DEFAULT_TYPE);
+        }
+        else {
+            _setType(type);
+        }
+
+        return getType();
+    };
+
+    private void _setType(String type) {
+        this._type = type;
+    }
+
+    // The default type to database for while is mysql
+
+    private static final String _DEFAULT_TYPE = "mysql";
+
+    // attributes variables
+
+    private String _type;
+
 }
