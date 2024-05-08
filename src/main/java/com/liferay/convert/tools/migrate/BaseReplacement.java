@@ -10,6 +10,10 @@ public abstract class BaseReplacement {
         throws Exception;
 
     protected String getType() {
+        if (_type == null) {
+            _setType(_DEFAULT_TYPE);
+        }
+
         return _type;
     }
 
@@ -21,8 +25,8 @@ public abstract class BaseReplacement {
             _setType(type);
         }
 
-        return getType();
-    };
+        return _type;
+    }
 
     private void _setType(String type) {
         this._type = type;

@@ -27,8 +27,8 @@ public class PrintLoggerUtil {
         System.out.println("Apply pattern " + pattern.pattern());
 
         System.out.println(
-                "Replaced " + _LIGHT_BLUE + oldContent + _RESET +
-                        _BREAK_LINE + " by " + _GREEN + newContent +
+                "Replace\n" + _LIGHT_BLUE + oldContent + _RESET +
+                        _BREAK_LINE + "By\n" + _GREEN + newContent +
                             _RESET + _DOUBLE_BREAK_LINE);
 
     }

@@ -32,10 +32,16 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                 if (sourceContent != null && targetContent != null) {
 
                     Pattern[] patternsArray = new Pattern[] {
-                            _ALTER_TABLE_DISABLE_PATTER_AS_COMMENT,
-                            _ALTER_TABLE_ENABLE_PATTER_AS_COMMENT,
+                            _CREATE_TABLE_GROUP_ID_FIELD_PATTERN,
+                            _ALTER_TABLE_DISABLE_AS_COMMENT_PATTER,
+                            _ALTER_TABLE_ENABLE_AS_COMMENT_PATTER,
                             _DROP_TABLE_PATTERN, _CREATE_TABLE_PATTERN,
-                            _LOCK_TABLES_PATTERN, _INSERT_INTO_PATTERN
+                            _LOCK_TABLES_PATTERN, _INSERT_INTO_PATTERN,
+                            _ALTER_TABLE_DISABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN,
+                            _ALTER_TABLE_ENABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN,
+                            _DROP_TABLE_GROUP_ID_FIELD_PATTERN,
+                            _LOCK_TABLE_GROUP_ID_FIELD_PATTERN,
+                            _INSERT_TABLE_GROUP_ID_FIELD_PATTERN
                     };
 
                     for (Pattern pattern : patternsArray) {
@@ -46,6 +52,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                     // Method to create output file and add on thread to be get in another class.
 
                     _createSQLFileOutput(newFileName, targetContent);
+
                 }
                 else {
                     throw new ReplacementException(
@@ -190,7 +197,10 @@ public class ReplacementLiferayScheme extends BaseReplacement {
         throws ReplacementException {
 
         try {
+            String patternDefinition = pattern.toString();
+
             if (Objects.equals(pattern, _INSERT_INTO_PATTERN)) {
+
                 Matcher matcherTarget = pattern.matcher(targetContent);
 
                 while (matcherTarget.find()) {
@@ -202,11 +212,67 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                                 matcherTarget.group(1),
                                 matcherSource.group(1).toLowerCase())) {
 
-                            targetContent = targetContent.replace(matcherTarget.group(1),
-                                    matcherSource.group(1));
+                            targetContent = targetContent.replace(
+                                    matcherTarget.group(1), matcherSource.group(1));
 
-                            PrintLoggerUtil.printReplacement(matcherTarget.group(1),
-                                    matcherSource.group(1), pattern);
+                            PrintLoggerUtil.printReplacement(
+                                    matcherTarget.group(1), matcherSource.group(1),
+                                    pattern);
+                        }
+                    }
+                }
+
+                return targetContent;
+
+            }
+            else if (patternDefinition.contains("(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))")) {
+
+                Matcher matcherSource = pattern.matcher(sourceContent);
+
+                while (matcherSource.find()) {
+                    Matcher matcherTarget = pattern.matcher(targetContent);
+
+                    while (matcherTarget.find()) {
+
+                        if (Objects.equals(
+                                matcherSource.group(2).toLowerCase(),
+                                matcherTarget.group(2))) {
+
+                            String camelCaseName = matcherSource.group(2);
+                            String groupId = matcherTarget.group(4);
+
+                            String camelCaseConcatGroupId =
+                                    camelCaseName + matcherSource.group(3) + groupId;
+
+                            if (Objects.equals(pattern, _CREATE_TABLE_GROUP_ID_FIELD_PATTERN)) {
+
+                                // Replace name concat group id
+
+                                targetContent = targetContent.replace(
+                                        matcherTarget.group(1), camelCaseConcatGroupId);
+
+                                PrintLoggerUtil.printReplacement(
+                                        matcherTarget.group(1), camelCaseConcatGroupId,
+                                        pattern);
+
+                                // Replace table definitions
+
+                                targetContent = targetContent.replace(
+                                        matcherTarget.group(5), matcherSource.group(5));
+
+                                PrintLoggerUtil.printReplacement(
+                                        matcherTarget.group(5), matcherSource.group(5),
+                                        pattern);
+
+                            }
+                            else {
+                                targetContent = targetContent.replace(
+                                        matcherTarget.group(1), camelCaseConcatGroupId);
+
+                                PrintLoggerUtil.printReplacement(
+                                        matcherTarget.group(1), camelCaseConcatGroupId,
+                                        pattern);
+                            }
                         }
                     }
                 }
@@ -215,6 +281,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
             }
             else {
+
                 Matcher matcherSource = pattern.matcher(sourceContent);
 
                 while (matcherSource.find()) {
@@ -234,10 +301,9 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                     }
                 }
 
+                return targetContent;
+
             }
-
-            return targetContent;
-
         }
         catch (Exception exception) {
             throw new ReplacementException(
@@ -249,10 +315,10 @@ public class ReplacementLiferayScheme extends BaseReplacement {
     
     // Patterns variables
 
-    private static final Pattern _ALTER_TABLE_DISABLE_PATTER_AS_COMMENT = Pattern.compile(
+    private static final Pattern _ALTER_TABLE_DISABLE_AS_COMMENT_PATTER = Pattern.compile(
             "/*!\\w+\\s+ALTER\\s+TABLE\\s+(`[^`]+`)\\s+DISABLE\\s+KEYS\\s+\\*/\\s*?;");
 
-    private static final Pattern _ALTER_TABLE_ENABLE_PATTER_AS_COMMENT = Pattern.compile(
+    private static final Pattern _ALTER_TABLE_ENABLE_AS_COMMENT_PATTER = Pattern.compile(
             "/*!\\w+\\s+ALTER\\s+TABLE\\s+(`[^`]+`)\\s+ENABLE\\s+KEYS\\s+\\*/\\s*?;");
 
     private static final Pattern _CREATE_TABLE_PATTERN = Pattern.compile(
@@ -270,18 +336,27 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
     // Concat with group id patterns variables
 
-    private static final Pattern _ALTER_TABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN = Pattern.compile(
-            "/*!\\w+\\s+ALTER\\s+TABLE\\s+[A-Za-z]+_[a-zA-Z]+_([0-9]+)\\s+DISABLE\\s+KEYS\\s+\\*/\\s*?;");
+    private static final Pattern _ALTER_TABLE_DISABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN =
+            Pattern.compile("\\*!\\w+\\s+ALTER\\s+TABLE\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`" +
+                    "\\s+DISABLE\\s+KEYS\\s+\\*");
+
+    private static final Pattern _ALTER_TABLE_ENABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN =
+            Pattern.compile("\\*!\\w+\\s+ALTER\\s+TABLE\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`" +
+                    "\\s+ENABLE\\s+KEYS\\s+\\*");
 
     private static final Pattern _CREATE_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
-            "CREATE\\s+TABLE\\s+`[A-Za-z]+_[a-zA-Z]+_([0-9]+)`\\s*\\((?:[^)(]+|\\([^)(]*\\))*\\)\\s*" +
-                    "ENGINE=InnoDB\\s*DEFAULT\\s*CHARSET=utf8mb4\\s*COLLATE=utf8mb4_unicode_ci;");
+            "CREATE\\s+TABLE\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`\\s*(\\((?:[^)(]+" +
+                    "|\\([^)(]*\\))*\\))\\s*ENGINE=InnoDB\\s*DEFAULT\\s*CHARSET=utf8mb4" +
+                    "\\s*COLLATE=utf8mb4_unicode_ci;");
 
     private static final Pattern _DROP_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
-            "DROP\\s+TABLE\\s+IF\\s+EXISTS\\s+`([A-Za-z])+_[a-zA-Z]+_[0-9]+`");
+            "DROP\\s+TABLE\\s+IF\\s+EXISTS\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`");
 
-    private static final Pattern _LOCK_TABLES_GROUP_ID_FIELD_PATTERN = Pattern.compile(
-            "LOCK\\s+TABLES\\s+`[A-Za-z]+_[a-zA-Z]+_([0-9]+)`\\s+WRITE;");
+    private static final Pattern _LOCK_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
+            "LOCK\\s+TABLES\\s+`([A-Za-z]+)_[a-zA-Z]+_([0-9]+)`\\s+WRITE;");
+
+    private static final Pattern _INSERT_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
+            "INSERT\\s+INTO\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`\\s+VALUES\\s+\\(`");
 
     // Utilities variables
 

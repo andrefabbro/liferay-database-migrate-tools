@@ -12,7 +12,8 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println("Converting database types between Oracle and MySQL tools...");
+        System.out.println(
+                "Converting liferay scheme types between Oracle and MySQL tools...");
 
         ReplacementLiferayScheme replacementLiferayScheme = new ReplacementLiferayScheme();
 
@@ -35,8 +36,8 @@ public class Main {
 
     private static final String _SOURCE_FILE_NAME = "liferay-mysql-dump.sql";
 
-    private static final String _TARGET_FILE_NAME = "customer-mysql-dump.sql";
+    private static final String _TARGET_FILE_NAME = "bizlink_74_dump_25_04.sql";
 
-    private static final String _NEW_FILE_NAME = "customer-mysql-dump-out-put.sql";
+    private static final String _NEW_FILE_NAME = "bizlink_74_new_dump_08_05.sql";
 
 }
