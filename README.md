@@ -4,9 +4,9 @@
 
 1. Download your bundle version from `https://customer.liferay.com/en_US/downloads`
 2. Create a MySQL Docker image, using the following command:
-``
+```
 docker run -it --name mysql_master -p 3307:3306 -e MYSQL_ROOT_PASSWORD= -e MYSQL_DATABASE=lportal -e MYSQL_ALLOW_EMPTY_PASSWORD=yes mysql:5.7 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-``
+```
 3. Go to the bundle you just downloaded, and in the root folder, create a file `portal-ext.propeties` and put the following properties:
 ```
 jdbc.default.driverClassName=com.mysql.cj.jdbc.Driver
