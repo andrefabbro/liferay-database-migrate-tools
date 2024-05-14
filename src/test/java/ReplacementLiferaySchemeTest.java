@@ -30,13 +30,11 @@ public class ReplacementLiferaySchemeTest extends ReplacementLiferayScheme {
 
         replacementLiferayScheme.replacement(
                 _SOURCE_LIFERAY_SCHEME_SQL, _TARGET_LIFERAY_SCHEME_SQL,
-                _NEW_CUSTOMER_SCHEME_OUT_PUT_SQL);
-
-        replaceContextPattern("", "", null);
+                _NEW_CUSTOMER_SCHEME_OUT_PUT_SQL, false);
 
         if (ResultsThreadLocal.getResultsThreadLocal()) {
             List<Map<String, String>> contentList =
-                    _getInputStreamListByFileName(
+                    _getContentsFromFiles(
                             _NEW_CUSTOMER_SCHEME_OUT_PUT_SQL,
                             _EXPECTED_CUSTOMER_SCHEME_OUT_PUT_SQL);
 
@@ -49,7 +47,7 @@ public class ReplacementLiferaySchemeTest extends ReplacementLiferayScheme {
 
     }
 
-    private List<Map<String, String>> _getInputStreamListByFileName(
+    private List<Map<String, String>> _getContentsFromFiles(
             String newFileOutput, String expectedFileOutput) {
         return null;
 

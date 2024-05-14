@@ -18,7 +18,7 @@ public class Main {
         ReplacementLiferayScheme replacementLiferayScheme = new ReplacementLiferayScheme();
 
         replacementLiferayScheme.replacement(
-                _SOURCE_FILE_NAME, _TARGET_FILE_NAME, _NEW_FILE_NAME);
+                _SOURCE_FILE_NAME, _TARGET_FILE_NAME, _NEW_FILE_NAME, true);
 
         if (ResultsThreadLocal.getResultsThreadLocal()) {
             PrintLoggerUtil.printInfo(
@@ -38,6 +38,6 @@ public class Main {
 
     private static final String _TARGET_FILE_NAME = "bizlink_74_dump_25_04.sql";
 
-    private static final String _NEW_FILE_NAME = "bizlink_74_new_dump_08_05.sql";
+    private static final String _NEW_FILE_NAME = "bizlink_74_new_dump_09_05.sql";
 
 }
