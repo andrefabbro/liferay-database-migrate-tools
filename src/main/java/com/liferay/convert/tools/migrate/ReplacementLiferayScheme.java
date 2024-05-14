@@ -17,12 +17,12 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
     @Override
     public void replacement(
-            String sourceFileName, String targetFileName, String newFileName)
+            String sourceFileName, String targetFileName, String newFileName, boolean isEnableLog)
         throws Exception {
 
         try {
             List<Map<String, String>> contentMapList =
-                    _getInputStreamListByFileName(sourceFileName, targetFileName);
+                    _getContentsFromFiles(sourceFileName, targetFileName);
 
             if (contentMapList != null && contentMapList.size() == 2) {
 
@@ -33,20 +33,12 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
                     Pattern[] patternsArray = new Pattern[] {
                             _CREATE_TABLE_GROUP_ID_FIELD_PATTERN,
-                            _ALTER_TABLE_DISABLE_AS_COMMENT_PATTER,
-                            _ALTER_TABLE_ENABLE_AS_COMMENT_PATTER,
-                            _DROP_TABLE_PATTERN, _CREATE_TABLE_PATTERN,
-                            _LOCK_TABLES_PATTERN, _INSERT_INTO_PATTERN,
-                            _ALTER_TABLE_DISABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN,
-                            _ALTER_TABLE_ENABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN,
-                            _DROP_TABLE_GROUP_ID_FIELD_PATTERN,
-                            _LOCK_TABLE_GROUP_ID_FIELD_PATTERN,
-                            _INSERT_TABLE_GROUP_ID_FIELD_PATTERN
+                            _CREATE_TABLE_PATTERN,
                     };
 
                     for (Pattern pattern : patternsArray) {
                         targetContent = replaceContextPattern(
-                                sourceContent, targetContent, pattern);
+                                sourceContent, targetContent, pattern, isEnableLog);
                     }
 
                     // Method to create output file and add on thread to be get in another class.
@@ -66,6 +58,95 @@ public class ReplacementLiferayScheme extends BaseReplacement {
         catch (Exception exception) {
             throw new Exception(
                     "Unable to replace contents ", exception);
+        }
+
+    }
+
+    protected String replaceContextPattern(
+            String sourceContent, String targetContent, Pattern pattern, boolean isEnableLog)
+        throws ReplacementException {
+
+        try {
+
+            Matcher matcherTarget = pattern.matcher(targetContent);
+
+            while (matcherTarget.find()) {
+
+                Matcher matcherSource = pattern.matcher(sourceContent);
+
+                while (matcherSource.find()) {
+
+                    String patternDefinition = pattern.toString();
+
+                    if (patternDefinition.contains(
+                            "(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))")) {
+                        if (Objects.equals(
+                                matcherTarget.group(2),
+                                matcherSource.group(2).toLowerCase())) {
+
+                            String camelCaseName = matcherSource.group(2);
+                            String groupId = matcherTarget.group(4);
+
+                            String camelCaseConcatGroupId =
+                                    camelCaseName + matcherSource.group(3) + groupId;
+
+                            // Replace name concat group id
+
+                            targetContent = targetContent.replace(
+                                    matcherTarget.group(1), camelCaseConcatGroupId);
+
+                            PrintLoggerUtil.printReplacement(
+                                    matcherTarget.group(1), camelCaseConcatGroupId,
+                                    pattern);
+
+                            // Replace table definitions
+
+                            targetContent = targetContent.replace(
+                                    matcherTarget.group(5), matcherSource.group(5));
+
+                            PrintLoggerUtil.printReplacement(
+                                    matcherTarget.group(5), matcherSource.group(5),
+                                    pattern);
+
+                        }
+                    }
+                    else {
+                        if (Objects.equals(
+                                matcherTarget.group(1),
+                                matcherSource.group(1).toLowerCase())) {
+
+                            // Replace all table name
+
+                            targetContent = targetContent.replace(
+                                    matcherTarget.group(1), matcherSource.group(1));
+
+                            PrintLoggerUtil.printReplacement(
+                                    matcherTarget.group(1), matcherSource.group(1),
+                                    pattern);
+
+                            // Replace table definitions
+
+                            String definitionsSource = matcherSource.group(2);
+                            String definitionsTarget = matcherTarget.group(2);
+
+                            String definitions = _getColumns(definitionsSource, definitionsTarget);
+
+                            targetContent = targetContent.replace(definitionsTarget, definitions);
+
+                            if (isEnableLog) {
+                                PrintLoggerUtil.printReplacement(
+                                        definitionsTarget, definitions, pattern);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return targetContent;
+        }
+        catch (Exception exception) {
+            throw new ReplacementException(
+                    "Unable to process " + pattern.pattern(), exception);
         }
 
     }
@@ -121,22 +202,87 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
     }
 
-    private String _getContentByInputStream(InputStream inputStream) throws IOException {
-        try (BufferedReader bufferedReader = new BufferedReader(
-                new InputStreamReader(inputStream))) {
+    private String _formatColumns(
+            Set<String> columns, String originalColumns) {
 
-            StringBuilder stringBuilder = new StringBuilder();
-            String line;
+        if (columns == null || columns.isEmpty()) {
+            return null;
+        }
 
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line).append("\n");
+        Pattern pattern = Pattern.compile(
+                "(`\\w+`)\\s\\w+(\\(\\d+\\))?\\s.+,");
+
+        Matcher matcher = pattern.matcher(originalColumns);
+
+        while (matcher.find()) {
+
+            for (String colum : columns) {
+
+                Matcher matcher1 = _COLUMN_NAME_PATTERN.matcher(colum);
+
+                if (matcher1.find()) {
+
+                    if (matcher.group(1).equalsIgnoreCase(
+                            matcher1.group(1))) {
+
+                        originalColumns = originalColumns.replace(
+                                matcher.group(), colum.trim() + ",");
+
+                    }
+
+                }
             }
 
-            return stringBuilder.toString();
         }
+
+        return originalColumns;
     }
 
-    private List<Map<String, String>> _getInputStreamListByFileName(
+    private String _getColumns(
+            String sourceColumns, String targetColumns) {
+
+        Set<String> columnsTargetSet = _getColumnsSet(targetColumns, false);
+        Set<String> sourceColumnsSet = _getColumnsSet(sourceColumns, false);
+        Set<String> onlyColumnsNameSourceSet = _getColumnsSet(sourceColumns, true);
+
+        columnsTargetSet.forEach(
+                (column) -> {
+                    Matcher matcher1 = _COLUMN_NAME_PATTERN.matcher(column);
+
+                    if (matcher1.find()) {
+                        String columnTarget = matcher1.group(1);
+
+                        if (!onlyColumnsNameSourceSet.contains(columnTarget)) {
+                            sourceColumnsSet.add(column);
+                        };
+                    }
+                }
+        );
+
+        return _formatColumns(sourceColumnsSet, targetColumns);
+
+    }
+
+    private Set<String> _getColumnsSet(String fields, boolean onlyColumnName) {
+        Set<String> fieldsSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        for (String column : fields.split(",")) {
+            Matcher matcher = _COLUMN_NAME_PATTERN.matcher(column);
+
+            if (matcher.find()) {
+                if (onlyColumnName) {
+                    fieldsSet.add(matcher.group(1));
+                }
+                else {
+                    fieldsSet.add(column.trim());
+                }
+            }
+        }
+
+        return fieldsSet;
+    }
+
+    private List<Map<String, String>> _getContentsFromFiles(
             String sourceFileName, String targetFileName) throws SQLFilesException {
 
         try {
@@ -165,8 +311,8 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                                 " not found.");
             }
             else {
-                String source = _getContentByInputStream(sourceInputStream);
-                String target = _getContentByInputStream(targetInputStream);
+                String source = _getContentInputStream(sourceInputStream);
+                String target = _getContentInputStream(targetInputStream);
 
                 if (source.isEmpty() && target.isEmpty() ||
                         source.isBlank() && target.isBlank()) {
@@ -192,171 +338,35 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
     }
 
-    protected String replaceContextPattern(
-            String sourceContent, String targetContent, Pattern pattern)
-        throws ReplacementException {
+    private String _getContentInputStream(InputStream inputStream) throws IOException {
+        try (BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(inputStream))) {
 
-        try {
-            String patternDefinition = pattern.toString();
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
 
-            if (Objects.equals(pattern, _INSERT_INTO_PATTERN)) {
-
-                Matcher matcherTarget = pattern.matcher(targetContent);
-
-                while (matcherTarget.find()) {
-                    Matcher matcherSource =
-                            _CREATE_TABLE_PATTERN.matcher(sourceContent);
-
-                    while (matcherSource.find()) {
-                        if (Objects.equals(
-                                matcherTarget.group(1),
-                                matcherSource.group(1).toLowerCase())) {
-
-                            targetContent = targetContent.replace(
-                                    matcherTarget.group(1), matcherSource.group(1));
-
-                            PrintLoggerUtil.printReplacement(
-                                    matcherTarget.group(1), matcherSource.group(1),
-                                    pattern);
-                        }
-                    }
-                }
-
-                return targetContent;
-
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
             }
-            else if (patternDefinition.contains("(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))")) {
 
-                Matcher matcherSource = pattern.matcher(sourceContent);
-
-                while (matcherSource.find()) {
-                    Matcher matcherTarget = pattern.matcher(targetContent);
-
-                    while (matcherTarget.find()) {
-
-                        if (Objects.equals(
-                                matcherSource.group(2).toLowerCase(),
-                                matcherTarget.group(2))) {
-
-                            String camelCaseName = matcherSource.group(2);
-                            String groupId = matcherTarget.group(4);
-
-                            String camelCaseConcatGroupId =
-                                    camelCaseName + matcherSource.group(3) + groupId;
-
-                            if (Objects.equals(pattern, _CREATE_TABLE_GROUP_ID_FIELD_PATTERN)) {
-
-                                // Replace name concat group id
-
-                                targetContent = targetContent.replace(
-                                        matcherTarget.group(1), camelCaseConcatGroupId);
-
-                                PrintLoggerUtil.printReplacement(
-                                        matcherTarget.group(1), camelCaseConcatGroupId,
-                                        pattern);
-
-                                // Replace table definitions
-
-                                targetContent = targetContent.replace(
-                                        matcherTarget.group(5), matcherSource.group(5));
-
-                                PrintLoggerUtil.printReplacement(
-                                        matcherTarget.group(5), matcherSource.group(5),
-                                        pattern);
-
-                            }
-                            else {
-                                targetContent = targetContent.replace(
-                                        matcherTarget.group(1), camelCaseConcatGroupId);
-
-                                PrintLoggerUtil.printReplacement(
-                                        matcherTarget.group(1), camelCaseConcatGroupId,
-                                        pattern);
-                            }
-                        }
-                    }
-                }
-
-                return targetContent;
-
-            }
-            else {
-
-                Matcher matcherSource = pattern.matcher(sourceContent);
-
-                while (matcherSource.find()) {
-                    Matcher matcherTarget = pattern.matcher(targetContent);
-
-                    while (matcherTarget.find()) {
-                        if (Objects.equals(
-                                matcherSource.group(1).toLowerCase(),
-                                matcherTarget.group(1))) {
-
-                            targetContent = targetContent.replace(
-                                    matcherTarget.group(), matcherSource.group());
-
-                            PrintLoggerUtil.printReplacement(matcherTarget.group(),
-                                    matcherSource.group(), pattern);
-                        }
-                    }
-                }
-
-                return targetContent;
-
-            }
+            return stringBuilder.toString();
         }
-        catch (Exception exception) {
-            throw new ReplacementException(
-                    "Unable to process " + pattern.pattern(),
-                            exception);
-        }
-
     }
-    
+
     // Patterns variables
 
-    private static final Pattern _ALTER_TABLE_DISABLE_AS_COMMENT_PATTER = Pattern.compile(
-            "/*!\\w+\\s+ALTER\\s+TABLE\\s+(`[^`]+`)\\s+DISABLE\\s+KEYS\\s+\\*/\\s*?;");
-
-    private static final Pattern _ALTER_TABLE_ENABLE_AS_COMMENT_PATTER = Pattern.compile(
-            "/*!\\w+\\s+ALTER\\s+TABLE\\s+(`[^`]+`)\\s+ENABLE\\s+KEYS\\s+\\*/\\s*?;");
+    private static final Pattern _COLUMN_NAME_PATTERN = Pattern.compile(
+            "(`[A-z]+_?`)\\s+[^,]+(?:,|$)");
 
     private static final Pattern _CREATE_TABLE_PATTERN = Pattern.compile(
-            "CREATE\\s+TABLE\\s+(`[^`]+`)\\s*\\((?:[^)(]+|\\([^)(]*\\))*\\)\\s*" +
-                    "ENGINE=InnoDB\\s*DEFAULT\\s*CHARSET=utf8mb4\\s*COLLATE=utf8mb4_unicode_ci;");
-
-    private static final Pattern _DROP_TABLE_PATTERN = Pattern.compile(
-            "DROP\\s+TABLE\\s+IF\\s+EXISTS\\s+(`[^`]+`);");
-
-    private static final Pattern _LOCK_TABLES_PATTERN = Pattern.compile(
-            "LOCK\\s+TABLES\\s+(`[^`]+`)\\s+WRITE;");
-
-    private static final Pattern _INSERT_INTO_PATTERN = Pattern.compile(
-            "INSERT\\s+INTO\\s+(`[^`]+`)\\s+VALUES\\s+\\(");
-
-    // Concat with group id patterns variables
-
-    private static final Pattern _ALTER_TABLE_DISABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN =
-            Pattern.compile("\\*!\\w+\\s+ALTER\\s+TABLE\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`" +
-                    "\\s+DISABLE\\s+KEYS\\s+\\*");
-
-    private static final Pattern _ALTER_TABLE_ENABLE_AS_COMMENT_GROUP_ID_FIELD_PATTERN =
-            Pattern.compile("\\*!\\w+\\s+ALTER\\s+TABLE\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`" +
-                    "\\s+ENABLE\\s+KEYS\\s+\\*");
+            "CREATE\\s+TABLE\\s+(`[A-z]+_?`)\\s*\\(((\\s*.*,)+(\\s*.*))\\s*\\)\\s*" +
+                    "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci?;");
 
     private static final Pattern _CREATE_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
             "CREATE\\s+TABLE\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`\\s*(\\((?:[^)(]+" +
                     "|\\([^)(]*\\))*\\))\\s*ENGINE=InnoDB\\s*DEFAULT\\s*CHARSET=utf8mb4" +
                     "\\s*COLLATE=utf8mb4_unicode_ci;");
 
-    private static final Pattern _DROP_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
-            "DROP\\s+TABLE\\s+IF\\s+EXISTS\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`");
-
-    private static final Pattern _LOCK_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
-            "LOCK\\s+TABLES\\s+`([A-Za-z]+)_[a-zA-Z]+_([0-9]+)`\\s+WRITE;");
-
-    private static final Pattern _INSERT_TABLE_GROUP_ID_FIELD_PATTERN = Pattern.compile(
-            "INSERT\\s+INTO\\s+`(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))`\\s+VALUES\\s+\\(`");
 
     // Utilities variables
 
