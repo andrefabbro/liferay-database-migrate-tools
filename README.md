@@ -24,17 +24,17 @@ jdbc.default.password=
 
 5. After starting the portal, go to the docker container and extract a dump file:
 -  Go to docker container:
-``
+```
 docker exec -it mysql_master bash
-``
+```
 - Run the following command to generate a dump
-``
+```
 mysql -u lportal lportal > [name-file-dump.sql]
-``
+```
 - Copy the dump out from the container:
-``
+```
 docker cp mysql_master:/[name-file-dump.slq] [destination folder]
-``
+```
 
 6. Now, put both dumps (the customer dump, and the extract dump from your bundle version) in the  `/src/main/resources/`
 
