@@ -6,20 +6,16 @@ package com.liferay.convert.tools.migrate;
 public abstract class BaseReplacement {
 
     protected abstract void replacement(
-            String sourceFileName, String targetFileName, String newFileName)
+            String sourceFileName, String targetFileName, String newFileName, boolean isEnableLog)
         throws Exception;
 
     protected String getType() {
-        if (_type == null) {
-            _setType(_DEFAULT_TYPE);
-        }
-
         return _type;
     }
 
     protected String type(String type) throws Exception {
         if (type == null || type.isEmpty()) {
-            _setType(_DEFAULT_TYPE);
+             return _type;
         }
         else {
             _setType(type);
@@ -38,6 +34,6 @@ public abstract class BaseReplacement {
 
     // attributes variables
 
-    private String _type;
+    private String _type = _DEFAULT_TYPE;
 
 }
