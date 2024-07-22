@@ -18,7 +18,7 @@ public class Main {
         ReplacementLiferayScheme replacementLiferayScheme = new ReplacementLiferayScheme();
 
         replacementLiferayScheme.replacement(
-                _SOURCE_FILE_NAME, _TARGET_FILE_NAME, _NEW_FILE_NAME, true);
+                _SOURCE_FILE_NAME, _TARGET_FILE_NAME, _NEW_FILE_NAME);
 
         if (ResultsThreadLocal.getResultsThreadLocal()) {
             PrintLoggerUtil.printInfo(

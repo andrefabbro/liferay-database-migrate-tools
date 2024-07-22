@@ -17,7 +17,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
     @Override
     public void replacement(
-            String sourceFileName, String targetFileName, String newFileName, boolean isEnableLog)
+            String sourceFileName, String targetFileName, String newFileName)
         throws Exception {
 
         try {
@@ -38,7 +38,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
                     for (Pattern pattern : patternsArray) {
                         targetContent = replaceContextPattern(
-                                sourceContent, targetContent, pattern, isEnableLog);
+                                sourceContent, targetContent, pattern);
                     }
 
                     // Method to create output file and add on thread to be get in another class.
@@ -63,7 +63,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
     }
 
     protected String replaceContextPattern(
-            String sourceContent, String targetContent, Pattern pattern, boolean isEnableLog)
+            String sourceContent, String targetContent, Pattern pattern)
         throws ReplacementException {
 
         try {
@@ -80,9 +80,8 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
                     if (patternDefinition.contains(
                             "(([A-Za-z]+)(_[a-zA-Z]+_)([0-9]+))")) {
-                        if (Objects.equals(
-                                matcherTarget.group(2),
-                                matcherSource.group(2).toLowerCase())) {
+
+                        if (matcherTarget.group(2).equalsIgnoreCase(matcherSource.group(2))) {
 
                             String camelCaseName = matcherSource.group(2);
                             String groupId = matcherTarget.group(4);
@@ -127,14 +126,14 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                             String definitionsSource = matcherSource.group(2);
                             String definitionsTarget = matcherTarget.group(2);
 
-                            String definitions = _getColumns(definitionsSource, definitionsTarget);
+                            String definitions = _getColumns(
+                                    definitionsSource, definitionsTarget);
 
-                            targetContent = targetContent.replace(definitionsTarget, definitions);
+                            targetContent = targetContent.replace(
+                                    definitionsTarget, definitions);
 
-                            if (isEnableLog) {
-                                PrintLoggerUtil.printReplacement(
-                                        definitionsTarget, definitions, pattern);
-                            }
+                            PrintLoggerUtil.printReplacement(
+                                    definitionsTarget, definitions, pattern);
                         }
                     }
                 }
