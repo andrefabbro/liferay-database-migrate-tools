@@ -111,9 +111,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                         }
                     }
                     else {
-                        if (Objects.equals(
-                                matcherTarget.group(1),
-                                matcherSource.group(1).toLowerCase())) {
+                        if (matcherTarget.group(1).equalsIgnoreCase(matcherSource.group(1))) {
 
                             // Replace all table name
 
@@ -210,7 +208,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
         }
 
         Pattern pattern = Pattern.compile(
-                "(`\\w+`)\\s\\w+(\\(\\d+\\))?\\s.+,");
+                "(`\\w+`)\\s(\\w+\\(?.+),?");
 
         Matcher matcher = pattern.matcher(originalColumns);
 
@@ -220,7 +218,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
 
                 Matcher matcher1 = _COLUMN_NAME_PATTERN.matcher(colum);
 
-                if (matcher1.find()) {
+                while (matcher1.find()) {
 
                     if (matcher.group(1).equalsIgnoreCase(
                             matcher1.group(1))) {
@@ -266,7 +264,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
     private Set<String> _getColumnsSet(String fields, boolean onlyColumnName) {
         Set<String> fieldsSet = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
-        for (String column : fields.split(",")) {
+        for (String column : fields.split(",\\n")) {
             Matcher matcher = _COLUMN_NAME_PATTERN.matcher(column);
 
             if (matcher.find()) {
