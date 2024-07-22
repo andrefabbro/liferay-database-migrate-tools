@@ -41,7 +41,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                                 sourceContent, targetContent, pattern);
                     }
 
-                    // Method to create output file and add on thread to be get in another class.
+                    // Method to create output file and add on thread to be got in another class.
 
                     _createSQLFileOutput(newFileName, targetContent);
 
@@ -106,7 +106,6 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                             PrintLoggerUtil.printReplacement(
                                     matcherTarget.group(5), matcherSource.group(5),
                                     pattern);
-
                         }
                     }
                     else {
@@ -121,19 +120,19 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                                     matcherTarget.group(1), matcherSource.group(1),
                                     pattern);
 
-                            // Replace table definitions
+                            // Replace table tableDefinitions
 
                             String definitionsSource = matcherSource.group(2);
                             String definitionsTarget = matcherTarget.group(2);
 
-                            String definitions = _getColumns(
+                            String tableDefinitions = _getColumns(
                                     definitionsSource, definitionsTarget);
 
                             targetContent = targetContent.replace(
-                                    definitionsTarget, definitions);
+                                    definitionsTarget, tableDefinitions);
 
                             PrintLoggerUtil.printReplacement(
-                                    definitionsTarget, definitions, pattern);
+                                    definitionsTarget, tableDefinitions, pattern);
                         }
                     }
                 }
@@ -200,21 +199,19 @@ public class ReplacementLiferayScheme extends BaseReplacement {
     }
 
     private String _formatColumns(
-            Set<String> columns, String originalColumns) {
+            Set<String> columnsSource, String columnsContentTarget, String contentSource) {
 
-        if (columns == null || columns.isEmpty()) {
+        if (columnsSource == null || columnsSource.isEmpty()) {
             return null;
         }
 
         Pattern pattern = Pattern.compile(
                 "(`\\w+`)\\s(\\w+\\(?.+),?");
 
-        Matcher matcher = pattern.matcher(originalColumns);
+        Matcher matcher = pattern.matcher(columnsContentTarget);
 
         while (matcher.find()) {
-
-            for (String colum : columns) {
-
+            for (String colum : columnsSource) {
                 Matcher matcher1 = _COLUMN_NAME_PATTERN.matcher(colum);
 
                 while (matcher1.find()) {
@@ -222,17 +219,14 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                     if (matcher.group(1).equalsIgnoreCase(
                             matcher1.group(1))) {
 
-                        originalColumns = originalColumns.replace(
-                                matcher.group(), colum.trim() + ",");
-
+                        columnsContentTarget = columnsContentTarget.replace(
+                                matcher.group(), colum + ",");
                     }
-
                 }
             }
-
         }
 
-        return originalColumns;
+        return _getConstraints(columnsContentTarget, contentSource);
     }
 
     private String _getColumns(
@@ -256,7 +250,7 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                 }
         );
 
-        return _formatColumns(sourceColumnsSet, targetColumns);
+        return _formatColumns(sourceColumnsSet, targetColumns, sourceColumns);
 
     }
 
@@ -277,6 +271,23 @@ public class ReplacementLiferayScheme extends BaseReplacement {
         }
 
         return fieldsSet;
+    }
+
+    private String _getConstraints(String columns, String constraints) {
+        Pattern pattern = Pattern.compile("PRIMARY\\s+KEY\\s+(.+)(\\s*.*)+");
+
+        Matcher matcher = pattern.matcher(constraints);
+
+        StringBuilder sb = new StringBuilder();
+
+        if (matcher.find()) {
+            sb.append(columns);
+            sb.append("\n");
+            sb.append("  ");
+            sb.append(matcher.group());
+        }
+
+        return sb.toString();
     }
 
     private List<Map<String, String>> _getContentsFromFiles(
