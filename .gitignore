@@ -1,7 +1,7 @@
 .gradle
 build/
 .idea/
-src/main/resources/*.sql
+# src/main/resources/*.sql
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
