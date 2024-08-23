@@ -2,6 +2,7 @@
 build/
 .idea/
 src/main/resources/*.sql
+!src/main/resources/liferay-mysql-dump.sql
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/

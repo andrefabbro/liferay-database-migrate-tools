@@ -40,9 +40,12 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                         targetContent = replaceContextPattern(
                                 sourceContent, targetContent, pattern);
                     }
+                    
+                    //Rohan: Replace all unicodes "utf8mb4_unicode_ci" -> "utf8mb4_bin"
+                    targetContent = replaceTheUTFs(targetContent);
+                    //End of unicode replacement
 
                     // Method to create output file and add on thread to be got in another class.
-
                     _createSQLFileOutput(newFileName, targetContent);
 
                 }
@@ -60,6 +63,24 @@ public class ReplacementLiferayScheme extends BaseReplacement {
                     "Unable to replace contents ", exception);
         }
 
+    }
+    
+    private String replaceTheUTFs(String content) {
+    	
+    	String targetWord = "utf8mb4_unicode_ci";
+    	String replacementWord = "utf8mb4_bin";
+    	
+    	Pattern pattern = Pattern.compile(Pattern.quote(targetWord));
+    	Matcher matcher = pattern.matcher(content);
+    	int utfCount = (int) matcher.results().count();
+    	if(utfCount > 0) {
+    		PrintLoggerUtil.printInfo("Total counts 'utf8mb4_unicode_ci' founds: " + utfCount);
+    		PrintLoggerUtil.printInfo("Begin: Replacing of 'utf8mb4_unicode_ci' with 'utf8mb4_bin'");
+    		content.replaceAll(targetWord, replacementWord);
+    		PrintLoggerUtil.printInfo("End: Replaced " + utfCount + " counts of 'utf8mb4_unicode_ci' with 'utf8mb4_bin'");
+    	}
+    	
+    	return content;
     }
 
     protected String replaceContextPattern(
