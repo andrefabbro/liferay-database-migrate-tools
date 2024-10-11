@@ -92,27 +92,29 @@ CREATE TABLE `OrgGroupRole` (
   `organizationId` bigint(20) NOT NULL,
   `groupId` bigint(20) NOT NULL,
   `roleId` bigint(20) NOT NULL,
-  PRIMARY KEY (`groupId`,`roleId`),
-  KEY `IX_84471FD2` (`groupId`),
-  KEY `IX_3103EF3D` (`roleId`)
+  PRIMARY KEY (`organizationId`,`groupId`,`roleId`),
+  KEY `IX_4A527DD3` (`groupId`),
+  KEY `IX_AB044D1C` (`roleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE `UserGroupGroupRole` (
   `userGroupId` bigint(20) NOT NULL,
   `groupId` bigint(20) NOT NULL,
   `roleId` bigint(20) NOT NULL,
-  PRIMARY KEY (`groupId`,`roleId`),
-  KEY `IX_84471FD2` (`groupId`),
-  KEY `IX_3103EF3D` (`roleId`)
+  PRIMARY KEY (`userGroupId`,`groupId`,`roleId`),
+  KEY `IX_CAB0CCC8` (`groupId`,`roleId`),
+  KEY `IX_1CDF88C` (`roleId`),
+  KEY `IX_73C52252` (`userGroupId`,`groupId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE `UserGroupRole` (
   `userId` bigint(20) NOT NULL,
   `groupId` bigint(20) NOT NULL,
   `roleId` bigint(20) NOT NULL,
-  PRIMARY KEY (`groupId`,`roleId`),
-  KEY `IX_84471FD2` (`groupId`),
-  KEY `IX_3103EF3D` (`roleId`)
+  PRIMARY KEY (`userId`,`groupId`,`roleId`),
+  KEY `IX_871412DF` (`groupId`,`roleId`),
+  KEY `IX_887A2C95` (`roleId`),
+  KEY `IX_4D040680` (`userId`,`groupId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE `Address` (
