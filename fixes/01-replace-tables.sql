@@ -1,122 +1,3 @@
-CREATE TABLE `User_` (
-  `uuid_` varchar(75)  DEFAULT NULL,
-  `userId` bigint(20) NOT NULL,
-  `companyId` bigint(20) DEFAULT NULL,
-  `createDate` datetime DEFAULT NULL,
-  `modifiedDate` datetime DEFAULT NULL,
-  `defaultUser` tinyint(4) DEFAULT NULL,
-  `contactId` bigint(20) DEFAULT NULL,
-  `password_` varchar(75)  DEFAULT NULL,
-  `passwordEncrypted` tinyint(4) DEFAULT NULL,
-  `passwordReset` tinyint(4) DEFAULT NULL,
-  `passwordModifiedDate` datetime DEFAULT NULL,
-  `digest` varchar(255)  DEFAULT NULL,
-  `reminderQueryQuestion` varchar(75)  DEFAULT NULL,
-  `reminderQueryAnswer` varchar(75)  DEFAULT NULL,
-  `graceLoginCount` int(11) DEFAULT NULL,
-  `screenName` varchar(75)  DEFAULT NULL,
-  `emailAddress` varchar(75)  DEFAULT NULL,
-  `facebookId` bigint(20) DEFAULT NULL,
-  `openId` varchar(1024)  DEFAULT NULL,
-  `portraitId` bigint(20) DEFAULT NULL,
-  `languageId` varchar(75)  DEFAULT NULL,
-  `timeZoneId` varchar(75)  DEFAULT NULL,
-  `greeting` varchar(255)  DEFAULT NULL,
-  `comments` longtext ,
-  `firstName` varchar(75)  DEFAULT NULL,
-  `middleName` varchar(75)  DEFAULT NULL,
-  `lastName` varchar(75)  DEFAULT NULL,
-  `jobTitle` varchar(100)  DEFAULT NULL,
-  `loginDate` datetime DEFAULT NULL,
-  `loginIP` varchar(75)  DEFAULT NULL,
-  `lastLoginDate` datetime DEFAULT NULL,
-  `lastLoginIP` varchar(75)  DEFAULT NULL,
-  `lastFailedLoginDate` datetime DEFAULT NULL,
-  `failedLoginAttempts` int(11) DEFAULT NULL,
-  `lockout` tinyint(4) DEFAULT NULL,
-  `lockoutDate` datetime DEFAULT NULL,
-  `agreedToTermsOfUse` tinyint(4) DEFAULT NULL,
-  `emailAddressVerified` tinyint(4) DEFAULT NULL,
-  `status` int(11) DEFAULT NULL,
-  `ldapServerId` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-CREATE TABLE `EmailAddress` (
-  `emailAddressId` bigint(20) NOT NULL,
-  `companyId` bigint(20) DEFAULT NULL,
-  `userId` bigint(20) DEFAULT NULL,
-  `userName` varchar(75)  DEFAULT NULL,
-  `createDate` datetime DEFAULT NULL,
-  `modifiedDate` datetime DEFAULT NULL,
-  `classNameId` bigint(20) DEFAULT NULL,
-  `classPK` bigint(20) DEFAULT NULL,
-  `address` varchar(75)  DEFAULT NULL,
-  `typeId` int(11) DEFAULT NULL,
-  `primary_` tinyint(4) DEFAULT NULL,
-  `uuid_` varchar(75)  DEFAULT NULL,
-  PRIMARY KEY (`emailAddressId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-CREATE TABLE `MBMailingList` (
-  `uuid_` varchar(75)  DEFAULT NULL,
-  `mailingListId` bigint(20) NOT NULL,
-  `groupId` bigint(20) DEFAULT NULL,
-  `companyId` bigint(20) DEFAULT NULL,
-  `userId` bigint(20) DEFAULT NULL,
-  `userName` varchar(75)  DEFAULT NULL,
-  `createDate` datetime DEFAULT NULL,
-  `modifiedDate` datetime DEFAULT NULL,
-  `categoryId` bigint(20) DEFAULT NULL,
-  `emailAddress` varchar(75)  DEFAULT NULL,
-  `inProtocol` varchar(75)  DEFAULT NULL,
-  `inServerName` varchar(75)  DEFAULT NULL,
-  `inServerPort` int(11) DEFAULT NULL,
-  `inUseSSL` tinyint(4) DEFAULT NULL,
-  `inUserName` varchar(75)  DEFAULT NULL,
-  `inPassword` varchar(75)  DEFAULT NULL,
-  `inReadInterval` int(11) DEFAULT NULL,
-  `outEmailAddress` varchar(75)  DEFAULT NULL,
-  `outCustom` tinyint(4) DEFAULT NULL,
-  `outServerName` varchar(75)  DEFAULT NULL,
-  `outServerPort` int(11) DEFAULT NULL,
-  `outUseSSL` tinyint(4) DEFAULT NULL,
-  `outUserName` varchar(75)  DEFAULT NULL,
-  `outPassword` varchar(75)  DEFAULT NULL,
-  `active_` tinyint(4) DEFAULT NULL,
-  `allowAnonymous` tinyint(4) DEFAULT NULL,
-  PRIMARY KEY (`mailingListId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-CREATE TABLE `OrgGroupRole` (
-  `organizationId` bigint(20) NOT NULL,
-  `groupId` bigint(20) NOT NULL,
-  `roleId` bigint(20) NOT NULL,
-  PRIMARY KEY (`organizationId`,`groupId`,`roleId`),
-  KEY `IX_4A527DD3` (`groupId`),
-  KEY `IX_AB044D1C` (`roleId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-CREATE TABLE `UserGroupGroupRole` (
-  `userGroupId` bigint(20) NOT NULL,
-  `groupId` bigint(20) NOT NULL,
-  `roleId` bigint(20) NOT NULL,
-  PRIMARY KEY (`userGroupId`,`groupId`,`roleId`),
-  KEY `IX_CAB0CCC8` (`groupId`,`roleId`),
-  KEY `IX_1CDF88C` (`roleId`),
-  KEY `IX_73C52252` (`userGroupId`,`groupId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-CREATE TABLE `UserGroupRole` (
-  `userId` bigint(20) NOT NULL,
-  `groupId` bigint(20) NOT NULL,
-  `roleId` bigint(20) NOT NULL,
-  PRIMARY KEY (`userId`,`groupId`,`roleId`),
-  KEY `IX_871412DF` (`groupId`,`roleId`),
-  KEY `IX_887A2C95` (`roleId`),
-  KEY `IX_4D040680` (`userId`,`groupId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
 CREATE TABLE `Address` (
   `addressId` bigint(20) NOT NULL,
   `companyId` bigint(20) DEFAULT NULL,
@@ -142,6 +23,38 @@ CREATE TABLE `Address` (
   KEY `IX_9226DBB4` (`companyId`,`classNameId`,`classPK`,`primary_`),
   KEY `IX_5BC8B0D4` (`userId`),
   KEY `IX_8FCB620E` (`uuid_`,`companyId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `AssetLink` (
+  `linkId` bigint(20) NOT NULL,
+  `companyId` bigint(20) DEFAULT NULL,
+  `userId` bigint(20) DEFAULT NULL,
+  `userName` varchar(75) DEFAULT NULL,
+  `createDate` datetime DEFAULT NULL,
+  `entryId1` bigint(20) DEFAULT NULL,
+  `entryId2` bigint(20) DEFAULT NULL,
+  `type_` int(11) DEFAULT NULL,
+  `weight` int(11) DEFAULT NULL,
+  PRIMARY KEY (`linkId`),
+  UNIQUE KEY `IX_8F542794` (`entryId1`,`entryId2`,`type_`),
+  KEY `IX_14D5A20D` (`entryId1`,`type_`),
+  KEY `IX_91F132C` (`entryId2`,`type_`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `Country` (
+  `countryId` bigint(20) NOT NULL,
+  `name` varchar(75) DEFAULT NULL,
+  `a2` varchar(75) DEFAULT NULL,
+  `a3` varchar(75) DEFAULT NULL,
+  `number_` varchar(75) DEFAULT NULL,
+  `idd_` varchar(75) DEFAULT NULL,
+  `zipRequired` tinyint(4) DEFAULT NULL,
+  `active_` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`countryId`),
+  UNIQUE KEY `IX_717B97E1` (`a2`),
+  UNIQUE KEY `IX_717B9BA2` (`a3`),
+  UNIQUE KEY `IX_19DA007B` (`name`),
+  KEY `IX_25D734CD` (`active_`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE `DLFileEntry` (
@@ -188,37 +101,66 @@ CREATE TABLE `DLFileEntry` (
   KEY `IX_25F5CAB9` (`smallImageId`,`largeImageId`,`custom1ImageId`,`custom2ImageId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-CREATE TABLE `SocialRelation` (
+CREATE TABLE `EmailAddress` (
   `uuid_` varchar(75) DEFAULT NULL,
-  `relationId` bigint(20) NOT NULL,
-  `companyId` bigint(20) DEFAULT NULL,
-  `createDate` bigint(20) DEFAULT NULL,
-  `userId1` bigint(20) DEFAULT NULL,
-  `userId2` bigint(20) DEFAULT NULL,
-  `type_` int(11) DEFAULT NULL,
-  PRIMARY KEY (`relationId`),
-  UNIQUE KEY `IX_12A92145` (`userId1`,`userId2`,`type_`),
-  KEY `IX_95135D1C` (`companyId`,`type_`),
-  KEY `IX_C31A64C6` (`type_`),
-  KEY `IX_4B52BE89` (`userId1`,`type_`),
-  KEY `IX_3F9C2FA8` (`userId2`,`type_`),
-  KEY `IX_5B30F663` (`uuid_`,`companyId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
-CREATE TABLE `AssetLink` (
-  `linkId` bigint(20) NOT NULL,
+  `emailAddressId` bigint(20) NOT NULL,
   `companyId` bigint(20) DEFAULT NULL,
   `userId` bigint(20) DEFAULT NULL,
   `userName` varchar(75) DEFAULT NULL,
   `createDate` datetime DEFAULT NULL,
-  `entryId1` bigint(20) DEFAULT NULL,
-  `entryId2` bigint(20) DEFAULT NULL,
-  `type_` int(11) DEFAULT NULL,
-  `weight` int(11) DEFAULT NULL,
-  PRIMARY KEY (`linkId`),
-  UNIQUE KEY `IX_8F542794` (`entryId1`,`entryId2`,`type_`),
-  KEY `IX_14D5A20D` (`entryId1`,`type_`),
-  KEY `IX_91F132C` (`entryId2`,`type_`)
+  `modifiedDate` datetime DEFAULT NULL,
+  `classNameId` bigint(20) DEFAULT NULL,
+  `classPK` bigint(20) DEFAULT NULL,
+  `address` varchar(75) DEFAULT NULL,
+  `typeId` int(11) DEFAULT NULL,
+  `primary_` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`emailAddressId`),
+  KEY `IX_2A2CB130` (`companyId`,`classNameId`,`classPK`,`primary_`),
+  KEY `IX_7B43CD8` (`userId`),
+  KEY `IX_F74AB912` (`uuid_`,`companyId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `MBMailingList` (
+  `uuid_` varchar(75) DEFAULT NULL,
+  `mailingListId` bigint(20) NOT NULL,
+  `groupId` bigint(20) DEFAULT NULL,
+  `companyId` bigint(20) DEFAULT NULL,
+  `userId` bigint(20) DEFAULT NULL,
+  `userName` varchar(75) DEFAULT NULL,
+  `createDate` datetime DEFAULT NULL,
+  `modifiedDate` datetime DEFAULT NULL,
+  `categoryId` bigint(20) DEFAULT NULL,
+  `emailAddress` varchar(75) DEFAULT NULL,
+  `inProtocol` varchar(75) DEFAULT NULL,
+  `inServerName` varchar(75) DEFAULT NULL,
+  `inServerPort` int(11) DEFAULT NULL,
+  `inUseSSL` tinyint(4) DEFAULT NULL,
+  `inUserName` varchar(75) DEFAULT NULL,
+  `inPassword` varchar(75) DEFAULT NULL,
+  `inReadInterval` int(11) DEFAULT NULL,
+  `outEmailAddress` varchar(75) DEFAULT NULL,
+  `outCustom` tinyint(4) DEFAULT NULL,
+  `outServerName` varchar(75) DEFAULT NULL,
+  `outServerPort` int(11) DEFAULT NULL,
+  `outUseSSL` tinyint(4) DEFAULT NULL,
+  `outUserName` varchar(75) DEFAULT NULL,
+  `outPassword` varchar(75) DEFAULT NULL,
+  `allowAnonymous` tinyint(4) DEFAULT NULL,
+  `active_` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`mailingListId`),
+  UNIQUE KEY `IX_76CE9CDD` (`groupId`,`categoryId`),
+  UNIQUE KEY `IX_E858F170` (`uuid_`,`groupId`),
+  KEY `IX_BFEB984F` (`active_`),
+  KEY `IX_FC61676E` (`uuid_`,`companyId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `OrgGroupRole` (
+  `organizationId` bigint(20) NOT NULL,
+  `groupId` bigint(20) NOT NULL,
+  `roleId` bigint(20) NOT NULL,
+  PRIMARY KEY (`organizationId`,`groupId`,`roleId`),
+  KEY `IX_4A527DD3` (`groupId`),
+  KEY `IX_AB044D1C` (`roleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE `QUARTZ_SIMPROP_TRIGGERS` (
@@ -237,4 +179,98 @@ CREATE TABLE `QUARTZ_SIMPROP_TRIGGERS` (
   `BOOL_PROP_1` tinyint(4) DEFAULT NULL,
   `BOOL_PROP_2` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `SocialRelation` (
+  `uuid_` varchar(75) DEFAULT NULL,
+  `relationId` bigint(20) NOT NULL,
+  `companyId` bigint(20) DEFAULT NULL,
+  `createDate` bigint(20) DEFAULT NULL,
+  `userId1` bigint(20) DEFAULT NULL,
+  `userId2` bigint(20) DEFAULT NULL,
+  `type_` int(11) DEFAULT NULL,
+  PRIMARY KEY (`relationId`),
+  UNIQUE KEY `IX_12A92145` (`userId1`,`userId2`,`type_`),
+  KEY `IX_95135D1C` (`companyId`,`type_`),
+  KEY `IX_C31A64C6` (`type_`),
+  KEY `IX_4B52BE89` (`userId1`,`type_`),
+  KEY `IX_3F9C2FA8` (`userId2`,`type_`),
+  KEY `IX_5B30F663` (`uuid_`,`companyId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `User_` (
+  `uuid_` varchar(75) DEFAULT NULL,
+  `userId` bigint(20) NOT NULL,
+  `companyId` bigint(20) DEFAULT NULL,
+  `createDate` datetime DEFAULT NULL,
+  `modifiedDate` datetime DEFAULT NULL,
+  `defaultUser` tinyint(4) DEFAULT NULL,
+  `contactId` bigint(20) DEFAULT NULL,
+  `password_` varchar(75) DEFAULT NULL,
+  `passwordEncrypted` tinyint(4) DEFAULT NULL,
+  `passwordReset` tinyint(4) DEFAULT NULL,
+  `passwordModifiedDate` datetime DEFAULT NULL,
+  `digest` varchar(255) DEFAULT NULL,
+  `reminderQueryQuestion` varchar(75) DEFAULT NULL,
+  `reminderQueryAnswer` varchar(75) DEFAULT NULL,
+  `graceLoginCount` int(11) DEFAULT NULL,
+  `screenName` varchar(75) DEFAULT NULL,
+  `emailAddress` varchar(75) DEFAULT NULL,
+  `facebookId` bigint(20) DEFAULT NULL,
+  `ldapServerId` bigint(20) DEFAULT NULL,
+  `openId` varchar(1024) DEFAULT NULL,
+  `portraitId` bigint(20) DEFAULT NULL,
+  `languageId` varchar(75) DEFAULT NULL,
+  `timeZoneId` varchar(75) DEFAULT NULL,
+  `greeting` varchar(255) DEFAULT NULL,
+  `comments` longtext,
+  `firstName` varchar(75) DEFAULT NULL,
+  `middleName` varchar(75) DEFAULT NULL,
+  `lastName` varchar(75) DEFAULT NULL,
+  `jobTitle` varchar(100) DEFAULT NULL,
+  `loginDate` datetime DEFAULT NULL,
+  `loginIP` varchar(75) DEFAULT NULL,
+  `lastLoginDate` datetime DEFAULT NULL,
+  `lastLoginIP` varchar(75) DEFAULT NULL,
+  `lastFailedLoginDate` datetime DEFAULT NULL,
+  `failedLoginAttempts` int(11) DEFAULT NULL,
+  `lockout` tinyint(4) DEFAULT NULL,
+  `lockoutDate` datetime DEFAULT NULL,
+  `agreedToTermsOfUse` tinyint(4) DEFAULT NULL,
+  `emailAddressVerified` tinyint(4) DEFAULT NULL,
+  `status` int(11) DEFAULT NULL,
+  PRIMARY KEY (`userId`),
+  UNIQUE KEY `IX_615E9F7A` (`companyId`,`emailAddress`),
+  UNIQUE KEY `IX_C5806019` (`companyId`,`screenName`),
+  UNIQUE KEY `IX_9782AD88` (`companyId`,`userId`),
+  UNIQUE KEY `IX_5ADBE171` (`contactId`),
+  KEY `IX_BCFDA257` (`companyId`,`createDate`,`modifiedDate`),
+  KEY `IX_6EF03E4E` (`companyId`,`defaultUser`),
+  KEY `IX_1D731F03` (`companyId`,`facebookId`),
+  KEY `IX_EE8ABD19` (`companyId`,`modifiedDate`),
+  KEY `IX_89509087` (`companyId`,`openId`(255)),
+  KEY `IX_F6039434` (`companyId`,`status`),
+  KEY `IX_762F63C6` (`emailAddress`),
+  KEY `IX_A18034A4` (`portraitId`),
+  KEY `IX_405CC0E` (`uuid_`,`companyId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `UserGroupGroupRole` (
+  `userGroupId` bigint(20) NOT NULL,
+  `groupId` bigint(20) NOT NULL,
+  `roleId` bigint(20) NOT NULL,
+  PRIMARY KEY (`userGroupId`,`groupId`,`roleId`),
+  KEY `IX_CAB0CCC8` (`groupId`,`roleId`),
+  KEY `IX_1CDF88C` (`roleId`),
+  KEY `IX_73C52252` (`userGroupId`,`groupId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `UserGroupRole` (
+  `userId` bigint(20) NOT NULL,
+  `groupId` bigint(20) NOT NULL,
+  `roleId` bigint(20) NOT NULL,
+  PRIMARY KEY (`userId`,`groupId`,`roleId`),
+  KEY `IX_871412DF` (`groupId`,`roleId`),
+  KEY `IX_887A2C95` (`roleId`),
+  KEY `IX_4D040680` (`userId`,`groupId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
