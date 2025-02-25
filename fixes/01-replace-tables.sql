@@ -274,3 +274,19 @@ CREATE TABLE `UserGroupRole` (
   KEY `IX_887A2C95` (`roleId`),
   KEY `IX_4D040680` (`userId`,`groupId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+CREATE TABLE `LayoutBranch` (
+  `LayoutBranchId` bigint(20) NOT NULL,
+  `groupId` bigint(20) DEFAULT NULL,
+  `companyId` bigint(20) DEFAULT NULL,
+  `userId` bigint(20) DEFAULT NULL,
+  `userName` varchar(75) DEFAULT NULL,
+  `layoutSetBranchId` bigint(20) DEFAULT NULL,
+  `plid` bigint(20) DEFAULT NULL,
+  `name` varchar(75) DEFAULT NULL,
+  `description` longtext,
+  `master` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`LayoutBranchId`),
+  UNIQUE KEY `IX_FD57097D` (`layoutSetBranchId`,`plid`,`name`),
+  KEY `IX_A705FF94` (`layoutSetBranchId`,`plid`,`master`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
